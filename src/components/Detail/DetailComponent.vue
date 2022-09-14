@@ -218,6 +218,7 @@ import TodoItem from '../TodoItem.vue';
 import TodoModal from '../TodoModal.vue';
 import Modal from '../Modal.vue';
 import ModalConfirmation from '../ModalConfirmation.vue';
+import Api from '../../api/Api';
 
 export default {
   name: 'DetailComponent',
@@ -249,6 +250,7 @@ export default {
       )[0];
     },
   },
+  
   watch: {
     setFilter(newVal) {
       switch (newVal) {
@@ -270,8 +272,7 @@ export default {
           }));
         case 'not-done':
           return (this.filteredTodos = this.todos.sort(
-            (a, b) => Number(a.is_active) - Number(b.is_active)
-          ));
+            (a, b) => a.is_active - b.is_active));
       }
     },
   },
@@ -281,9 +282,9 @@ export default {
       await this.fetchTodos();
     },
     async fetchActivity() {
-      await axios
+      await Api
         .get(
-          `https://todo.api.devcode.gethired.id/activity-groups/${this.$route.params.id}`
+          `/activity-groups/${this.$route.params.id}`
         )
         .then((res) => {
           if (res.data && res.data !== {}) {
@@ -292,8 +293,8 @@ export default {
         });
     },
     async fetchTodos() {
-      await axios
-        .get(`https://todo.api.devcode.gethired.id/todo-items`, {
+      await Api
+        .get(`/todo-items`, {
           params: {
             activity_group_id: this.$route.params.id,
           },
@@ -318,8 +319,8 @@ export default {
       this.isConfirmModalOpen = !this.isConfirmModalOpen;
     },
     async deleteTodo(id) {
-      await axios
-        .delete(`https://todo.api.devcode.gethired.id/todo-items/${id}`)
+      await Api
+        .delete(`/todo-items/${id}`)
         .then(() => {
           this.fetchAll();
           this.toggleModalWarning();
@@ -327,9 +328,9 @@ export default {
     },
     async updateTitle(savePrompt) {
       if (savePrompt) {
-        await axios
+        await Api
           .patch(
-            `https://todo.api.devcode.gethired.id/activity-groups/${this.activity.id}`,
+            `/activity-groups/${this.activity.id}`,
             {
               title: this.activity.title,
             }
